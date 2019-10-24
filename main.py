@@ -17,51 +17,55 @@ def stopwatch(start_time, msg):
 
 
 # 
-# Feature flags state is managed and updated live by Rollout
+# Feature flags state is managed as an object instance and updated live by Rollout
 # Treat it as read only in your function. 
-# Even though it is setup once - even if your function is invoked "warm", rollout will 
-# still ensure the state of the flags represents the current Rollout console config in the background. 
 #
 class MyContainer:
      def __init__(self):
-        self.spankyChat = RoxFlag()
+        self.enable_tutorial = RoxFlag()
 my_container = MyContainer()
-
-
-#
-# Rollout flag setup (called once for a cold start)
-#
 Rox.register('', my_container)
+
+
+# 
+# Here we load the state of the flags as a one off for a cold start. 
+# If this is too slow you can skip the .result() call and it will use defaults while
+# the flags are loaded in the background. 
+#
 start = current_time()
-#cancel_event = Rox.setup("5c528ffeaf23cf07f9bb3a85").result()
-Rox.setup("5c528ffeaf23cf07f9bb3a85")
+Rox.setup("5c528ffeaf23cf07f9bb3a85").result()
 stopwatch(start, "Setup time")
 
 
-if (my_container.spankyChat.is_enabled() == True):
+#
+# This will show the state of the flag at the time of a cold start.
+#
+if (my_container.enable_tutorial.is_enabled() == True):
     print('ENABLED')
 else:    
     print('NOT ENABLED')
 
 
 #
+# Finally, your function that does the thing!
 # Everything until this point is called once during a "cold start" of the function. 
-# 
+# This function can be re-used when warm. Rollout will keep the flags up to date. 
 #
 def my_function(request):
     """HTTP Cloud Function. Using: http://flask.pocoo.org/docs/1.0/api/#flask.Request
 
     Rollout setup info: 
-        See https://support.rollout.io/reference for details on how to get your app id and api token.
+        QuickStart: https://support.rollout.io/docs/initial-setup
+        You will need the Install Instructions from in app to get the ID used above in Rox.setup (and your flag name of course)
 
     Google cloud function deploying: 
         gcloud functions deploy my_function --trigger-http --runtime "python37"    
 
     """
 
-    if (my_container.spankyChat.is_enabled() == True):
-        return "ENABLED"
+    if (my_container.enable_tutorial.is_enabled() == True):
+        return 'ENABLED'
     else:    
-        return 'OK'
+        return 'NOT ENABLED'
 
 
