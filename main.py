@@ -33,7 +33,7 @@ Rox.register('', my_container)
 # the flags are loaded in the background. 
 #
 start = current_time()
-Rox.setup("5c528ffeaf23cf07f9bb3a85").result()
+Rox.setup("..environment key here..").result()
 stopwatch(start, "Setup time")
 
 
